@@ -10,9 +10,9 @@ from place_order_UC import place_order_mt5  # Hàm thực hiện lệnh giao d�
 app = Flask(__name__)
 
 # Thông tin tài khoản MT5
-MT5_ACCOUNT = 7510016
-MT5_PASSWORD = "7lTa+zUw"
-MT5_SERVER = "VantageInternational-Demo"
+MT5_ACCOUNT = 24528903
+MT5_PASSWORD = 'kvaaLCOL~_22'
+MT5_SERVER = 'FivePercentOnline-Real'
 RISK_AMOUNT = 97  # USD
 
 # Biến lưu trữ trạng thái giao dịch và điều khiển bot
