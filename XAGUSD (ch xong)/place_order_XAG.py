@@ -2,9 +2,9 @@ import MetaTrader5 as mt5
 from atr_check_XAG import atr_stop_loss_finder  # Hàm tính ATR từ MetaTrader 5 (MT5)
 import random
 # Thông tin tài khoản MT5
-MT5_ACCOUNT = 7510016
-MT5_PASSWORD = "7lTa+zUw"
-MT5_SERVER = "VantageInternational-Demo"
+MT5_ACCOUNT = 24528903
+MT5_PASSWORD = 'kvaaLCOL~_22'
+MT5_SERVER = 'FivePercentOnline-Real'
 
 # Hàm kết nối với MT5
 def connect_mt5():
