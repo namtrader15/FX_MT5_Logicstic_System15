@@ -185,12 +185,12 @@ def get_final_trend_XAG():
 
     # Kiểm tra các điều kiện để quyết định kết quả
     if (trend_h1 == 1 and trend_h4 == 1 and combined_acc >= 0.88) or \
-       (trend_h1 == 1 and accuracy_h1 > 72 and f1_h1 > 72) or \
+       (trend_h1 == 1 and accuracy_h1 > 71 and f1_h1 > 71) or \
        (trend_h4 == 1 and accuracy_h4 > 69 and f1_h4 > 70):
         return "Xu hướng tăng"
         
     elif (trend_h1 == 0 and trend_h4 == 0 and combined_acc >= 0.88) or \
-         (trend_h1 == 0 and accuracy_h1 > 72 and f1_h1 > 72) or \
+         (trend_h1 == 0 and accuracy_h1 > 71 and f1_h1 > 71) or \
          (trend_h4 == 0 and accuracy_h4 > 69 and f1_h4 > 70):
         return "Xu hướng giảm"
         
