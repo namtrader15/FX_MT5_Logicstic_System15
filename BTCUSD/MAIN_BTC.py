@@ -12,9 +12,9 @@ from place_order import place_order_mt5
 app = Flask(__name__)
 
 # Thông tin tài khoản MT5 và Binance API
-MT5_ACCOUNT = 7510016
-MT5_PASSWORD = '7lTa+zUw'
-MT5_SERVER = 'VantageInternational-Demo'
+MT5_ACCOUNT = 24528903
+MT5_PASSWORD = 'kvaaLCOL~_22'
+MT5_SERVER = 'FivePercentOnline-Real'
 BINANCE_API_KEY = "your_binance_api_key"
 BINANCE_SECRET_KEY = "your_binance_secret_key"
 RISK_AMOUNT = 70  # USD
