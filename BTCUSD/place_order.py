@@ -3,9 +3,9 @@ from binance.client import Client
 from atr_check import atr_stop_loss_finder  # Hàm tính ATR từ Binance
 import random
 # Thông tin tài khoản MT5
-MT5_ACCOUNT = 7510016
-MT5_PASSWORD = '7lTa+zUw'
-MT5_SERVER = 'VantageInternational-Demo'
+MT5_ACCOUNT = 24528903
+MT5_PASSWORD = 'kvaaLCOL~_22'
+MT5_SERVER = 'FivePercentOnline-Real'
 
 # Thông tin API Binance
 BINANCE_API_KEY = "your_binance_api_key"
