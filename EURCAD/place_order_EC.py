@@ -1,5 +1,5 @@
 import MetaTrader5 as mt5
-from atr_check_ETH import atr_stop_loss_finder  # Hàm tính ATR từ MetaTrader 5 (MT5)
+from atr_check_EC import atr_stop_loss_finder  # Hàm tính ATR từ MetaTrader 5 (MT5)
 import random
 # Thông tin tài khoản MT5
 MT5_ACCOUNT = 7510016
@@ -23,7 +23,7 @@ def connect_mt5():
     return True
 
 # Hàm lấy giá mark từ MT5
-def get_realtime_price_mt5(symbol="ETHUSD"):
+def get_realtime_price_mt5(symbol="EURCAD"):
     tick = mt5.symbol_info_tick(symbol)
     if tick:
         return tick.ask  # Giá mua (ask)
@@ -55,16 +55,16 @@ def calculate_volume_based_on_risk(symbol, risk_amount, market_price, stop_loss_
     return volume
 
 # Hàm thực hiện lệnh Market trên MT5 với tính toán volume, Stop Loss và Take Profit
-def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_reward_ratio=1.7):
+def place_order_mt5(client, order_type, symbol="EURCAD", risk_amount=60, risk_reward_ratio=1.7):
     global last_order_status
     
     # Lấy giá mark hiện tại từ MT5 để đặt lệnh
-    mark_price = get_realtime_price_mt5(symbol="ETHUSD")
+    mark_price = get_realtime_price_mt5(symbol="EURCAD")
     if mark_price is None:
         return
 
     # Sử dụng hàm ATR để lấy stop_loss dựa trên ATR từ MetaTrader 5 (MT5)
-    atr_symbol = "ETHUSD"  # Đổi thành ETHUSD cho MT5
+    atr_symbol = "EURCAD"  # Đổi thành EURCAD cho MT5
     atr_short_stop_loss, atr_long_stop_loss = atr_stop_loss_finder(atr_symbol)
     
     # Xác định giá trị SL
@@ -74,10 +74,10 @@ def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_re
         stop_loss_price = atr_short_stop_loss
     
     # Định dạng giá trị SL thành dạng thập phân
-    stop_loss_price = float(f"{stop_loss_price:.2f}")
+    stop_loss_price = float(f"{stop_loss_price:.5f}")
 
     # Tính khối lượng giao dịch dựa trên mức rủi ro và giá trị ATR
-    volume = calculate_volume_based_on_risk("ETHUSD", risk_amount, mark_price, stop_loss_price)
+    volume = calculate_volume_based_on_risk("EURCAD", risk_amount, mark_price, stop_loss_price)
     if volume is None or volume <= 0:
         print("Số lượng giao dịch không hợp lệ. Hủy giao dịch.")
         return
@@ -92,7 +92,7 @@ def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_re
         take_profit_price = mark_price - reward_distance
 
     # Định dạng TP thành dạng thập phân
-    take_profit_price = float(f"{take_profit_price:.2f}")
+    take_profit_price = float(f"{take_profit_price:.5f}")
 
     # In các giá trị để kiểm tra
     print(f"Giá hiện tại từ MT5: {mark_price}")
@@ -103,7 +103,7 @@ def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_re
     # Thiết lập và gửi lệnh Market trên MT5 với IOC filling mode
     order = {
         "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": "ETHUSD",  # Thay đổi symbol thành ETHUSD
+        "symbol": "EURCAD",  # Thay đổi symbol thành EURCAD
         "volume": volume,
         "type": mt5.ORDER_TYPE_BUY if order_type == "buy" else mt5.ORDER_TYPE_SELL,
         "price": mark_price,
@@ -120,8 +120,8 @@ def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_re
         print("Gửi lệnh thất bại. Kiểm tra các thông số lệnh:")
         print("Order:", order)
         print("Lỗi:", mt5.last_error())
-        # Khởi tạo khối lượng ngẫu nhiên từ 0.07 đến 0.40
-        backup_volume = round(random.uniform(0.07, 0.40), 2)
+        # Khởi tạo khối lượng ngẫu nhiên từ 0.07 đến 0.09
+        backup_volume = round(random.uniform(0.07, 0.09), 2)
         print(f"Thử lại với khối lượng dự phòng: {backup_volume} lots")
         
         # Cập nhật khối lượng trong lệnh
@@ -130,15 +130,15 @@ def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_re
     elif result.retcode != mt5.TRADE_RETCODE_DONE:
         print("Lệnh không thành công. Mã lỗi:", result.retcode)
         print("Thông tin chi tiết:", result)
-        # Khởi tạo khối lượng ngẫu nhiên từ 0.07 đến 0.40
-        backup_volume = round(random.uniform(0.07, 0.40), 2)
+        # Khởi tạo khối lượng ngẫu nhiên từ 0.07 đến 0.09
+        backup_volume = round(random.uniform(0.07, 0.09), 2)
         print(f"Thử lại với khối lượng dự phòng: {backup_volume} lots")
         
         # Cập nhật khối lượng trong lệnh
         order["volume"] = backup_volume
         result = mt5.order_send(order)
     else:
-        last_order_status = f"Đã {order_type} {volume} lots ETHUSD ở giá {mark_price:.2f} với Stop Loss: {stop_loss_price:.2f} và Take Profit: {take_profit_price:.2f}."
+        last_order_status = f"Đã {order_type} {volume} lots EURCAD ở giá {mark_price:.5f} với Stop Loss: {stop_loss_price:.5f} và Take Profit: {take_profit_price:.5f}."
         print(last_order_status)
 
 # Chương trình chính để kiểm tra
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     # Kết nối MT5 và thực hiện lệnh Market mẫu
     if connect_mt5():
         print("Thực hiện lệnh Market với tính toán volume từ mức rủi ro và ATR stop loss.")
-        place_order_mt5(None, "buy", "ETHUSD", risk_amount=60)  # Thay symbol thành "ETHUSD"
+        place_order_mt5(None, "buy", "EURCAD", risk_amount=60)  # Thay symbol thành "EURCAD"
         mt5.shutdown()
     else:
         print("Không thể kết nối đến MT5.")
