@@ -116,7 +116,7 @@ def check_poc_and_place_order(final_trend, symbol="EURCAD"):
     price_difference_percent = abs((poc_value - mark_price) / mark_price) * 100
     print(f"[DEBUG] POC: {poc_value}, Giá thị trường: {mark_price}, Chênh lệch (%): {price_difference_percent:.2f}")
 
-    if price_difference_percent <= 0.3:
+    if price_difference_percent <= 0.08:
         if final_trend == "Xu hướng tăng":
             print("[DEBUG] Xu hướng tăng. Gọi trực tiếp place_order_mt5 với lệnh mặc định Buy.")
             # Gọi place_order_mt5 với logic mặc định Buy
@@ -125,7 +125,7 @@ def check_poc_and_place_order(final_trend, symbol="EURCAD"):
             print("[DEBUG] Xu hướng giảm. Thực hiện lệnh Sell.")
             place_order_mt5(None, order_type="sell", symbol=symbol, risk_amount=RISK_AMOUNT)
     else:
-        print("[DEBUG] Không thực hiện lệnh vì chênh lệch vượt quá 0.2%.")
+        print("[DEBUG] Không thực hiện lệnh vì chênh lệch vượt quá 0.08%.")
 
 
 # Hàm đóng lệnh
