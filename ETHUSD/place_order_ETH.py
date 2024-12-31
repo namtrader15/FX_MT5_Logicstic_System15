@@ -1,6 +1,7 @@
 import MetaTrader5 as mt5
 from atr_check_ETH import atr_stop_loss_finder  # Hàm tính ATR từ MetaTrader 5 (MT5)
 import random
+
 # Thông tin tài khoản MT5
 MT5_ACCOUNT = 7510016
 MT5_PASSWORD = "7lTa+zUw"
@@ -100,46 +101,45 @@ def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_re
     print(f"Take Profit: {take_profit_price}")
     print(f"Khối lượng giao dịch: {volume} lots")
 
-    # Thiết lập và gửi lệnh Market trên MT5 với IOC filling mode
-    order = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": "ETHUSD",  # Thay đổi symbol thành ETHUSD
-        "volume": volume,
-        "type": mt5.ORDER_TYPE_BUY if order_type == "buy" else mt5.ORDER_TYPE_SELL,
-        "price": mark_price,
-        "sl": stop_loss_price,  # Giá trị Stop Loss
-        "tp": take_profit_price,  # Giá trị Take Profit
-        "deviation": 20,
-        "magic": 234000,
-        "type_filling": mt5.ORDER_FILLING_IOC,  # Chế độ khớp lệnh IOC
-    }
+    # Thiết lập các chế độ điền lệnh
+    filling_modes = [
+        mt5.ORDER_FILLING_IOC,  # Immediate or Cancel (IOC)
+        mt5.ORDER_FILLING_FOK,  # Fill or Kill (FOK)
+        mt5.ORDER_FILLING_RETURN  # Return (mặc định)
+    ]
+    
+    # Thử gửi lệnh với các chế độ điền lệnh khác nhau
+    for mode in filling_modes:
+        order = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": "ETHUSD", 
+            "volume": volume,
+            "type": mt5.ORDER_TYPE_BUY if order_type == "buy" else mt5.ORDER_TYPE_SELL,
+            "price": mark_price,
+            "sl": stop_loss_price,
+            "tp": take_profit_price,
+            "deviation": 20,
+            "magic": 234000,
+            "type_filling": mode,  # Thử từng chế độ điền lệnh
+        }
 
-    # Gửi lệnh và kiểm tra lỗi
-    result = mt5.order_send(order)
-    if result is None:
-        print("Gửi lệnh thất bại. Kiểm tra các thông số lệnh:")
-        print("Order:", order)
-        print("Lỗi:", mt5.last_error())
-        # Khởi tạo khối lượng ngẫu nhiên từ 0.07 đến 0.40
-        backup_volume = round(random.uniform(0.07, 0.40), 2)
-        print(f"Thử lại với khối lượng dự phòng: {backup_volume} lots")
-        
-        # Cập nhật khối lượng trong lệnh
-        order["volume"] = backup_volume
+        # Gửi lệnh và kiểm tra kết quả
         result = mt5.order_send(order)
-    elif result.retcode != mt5.TRADE_RETCODE_DONE:
-        print("Lệnh không thành công. Mã lỗi:", result.retcode)
-        print("Thông tin chi tiết:", result)
-        # Khởi tạo khối lượng ngẫu nhiên từ 0.07 đến 0.40
-        backup_volume = round(random.uniform(0.07, 0.40), 2)
-        print(f"Thử lại với khối lượng dự phòng: {backup_volume} lots")
         
-        # Cập nhật khối lượng trong lệnh
-        order["volume"] = backup_volume
-        result = mt5.order_send(order)
-    else:
-        last_order_status = f"Đã {order_type} {volume} lots ETHUSD ở giá {mark_price:.2f} với Stop Loss: {stop_loss_price:.2f} và Take Profit: {take_profit_price:.2f}."
-        print(last_order_status)
+        # Kiểm tra xem result có phải là None không
+        if result is None:
+            print(f"Lệnh không thể gửi với chế độ {mode}. Kiểm tra thông số lệnh.")
+            continue  # Tiếp tục thử với chế độ điền lệnh khác
+        elif result.retcode == mt5.TRADE_RETCODE_DONE:
+            last_order_status = f"Đã {order_type} {volume} lots ETHUSD ở giá {mark_price:.2f} với Stop Loss: {stop_loss_price:.2f} và Take Profit: {take_profit_price:.2f}."
+            print(last_order_status)
+            break  # Nếu lệnh thành công thì thoát khỏi vòng lặp
+        else:
+            print(f"Lệnh không thành công với chế độ {mode}. Mã lỗi: {result.retcode}")
+            print("Thông tin chi tiết:", result)
+    
+    # Nếu tất cả các chế độ đều thất bại, in thông báo lỗi
+    print("Không thể gửi lệnh với bất kỳ chế độ điền lệnh nào.")
 
 # Chương trình chính để kiểm tra
 if __name__ == "__main__":
