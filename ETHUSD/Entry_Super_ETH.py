@@ -67,18 +67,19 @@ def calculate_macd(data, slow=26, fast=12, signal=9):
     signal_line = macd.ewm(span=signal, adjust=False).mean()
     return macd, signal_line
 
-# Hàm tính EMA Ribbon và các tín hiệu liên quan
-def calculate_ema_ribbon(data):
-    # Tính toán các đường EMA
-    data['ema1'] = data['close'].ewm(span=5, adjust=False).mean()
-    data['ema2'] = data['close'].ewm(span=11, adjust=False).mean()
-    data['ema3'] = data['close'].ewm(span=15, adjust=False).mean()
-    data['ema8'] = data['close'].ewm(span=34, adjust=False).mean()
-    
-    # Tạo tín hiệu từ EMA Ribbon
-    data['Longema'] = (data['ema2'] > data['ema8']).astype(int)  # Longema: EMA2 > EMA8
-    data['Redcross'] = (data['ema1'] < data['ema2']).astype(int)  # Redcross: EMA1 < EMA2
-    data['Bluetriangle'] = (data['ema2'] > data['ema3']).astype(int)  # Bluetriangle: EMA2 > EMA3
+# Hàm tính giá trị Heikin-Ashi
+def calculate_heikin_ashi(data):
+    ha_open = (data['open'].shift(1) + data['close'].shift(1)) / 2
+    ha_open.iloc[0] = (data['open'].iloc[0] + data['close'].iloc[0]) / 2
+    ha_close = (data['open'] + data['high'] + data['low'] + data['close']) / 4
+    ha_high = pd.concat([data['high'], ha_open, ha_close], axis=1).max(axis=1)
+    ha_low = pd.concat([data['low'], ha_open, ha_close], axis=1).min(axis=1)
+
+    data['heikin_open'] = ha_open
+    data['heikin_high'] = ha_high
+    data['heikin_low'] = ha_low
+    data['heikin_close'] = ha_close
+
     return data
 
 # Hàm lấy dữ liệu từ MetaTrader 5 và tính toán Heikin-Ashi
@@ -110,16 +111,7 @@ def get_realtime_klines(symbol, timeframe, lookback):
     data.rename(columns={'open': 'open', 'high': 'high', 'low': 'low', 'close': 'close', 'tick_volume': 'volume'}, inplace=True)
 
     # Tính giá trị Heikin-Ashi
-    ha_open = (data['open'].shift(1) + data['close'].shift(1)) / 2
-    ha_open.iloc[0] = (data['open'].iloc[0] + data['close'].iloc[0]) / 2
-    ha_close = (data['open'] + data['high'] + data['low'] + data['close']) / 4
-    ha_high = pd.concat([data['high'], ha_open, ha_close], axis=1).max(axis=1)
-    ha_low = pd.concat([data['low'], ha_open, ha_close], axis=1).min(axis=1)
-
-    data['open'] = ha_open
-    data['high'] = ha_high
-    data['low'] = ha_low
-    data['close'] = ha_close
+    data = calculate_heikin_ashi(data)
 
     return data
 
@@ -134,12 +126,12 @@ def analyze_trend(symbol, interval, lookback):
     data['rsi'] = calculate_rsi(data, 14)
     data['macd'], data['signal_line'] = calculate_macd(data)
     data = calculate_parabolic_sar(data)
-    data = calculate_ema_ribbon(data)
-
+    
     # Tạo biến target cho học máy
     data['target'] = (data['close'].shift(-1) > data['close']).astype(int)
 
-    features = data[['rsi', 'macd', 'signal_line', 'parabolic_sar', 'Longema', 'Redcross', 'Bluetriangle']].dropna()
+    # Cập nhật features để không sử dụng các tín hiệu EMA
+    features = data[['rsi', 'macd', 'signal_line', 'parabolic_sar', 'heikin_close']].dropna()  # Thêm 'heikin_close' vào features
     target = data['target'].dropna()
 
     # Đảm bảo số lượng hàng khớp nhau
@@ -169,10 +161,9 @@ def analyze_trend(symbol, interval, lookback):
     # Dự đoán xu hướng thời gian thực
     latest_features = features_scaled[-1].reshape(1, -1)
     prediction_prob = grid.predict_proba(latest_features)[0]
-    trend = 1 if prediction_prob[1] >= 0.55 else 0 if prediction_prob[1] <= 0.45 else -1
+    trend = 1 if prediction_prob[1] > 0.55 else 0 if prediction_prob[1] < 0.45 else -1
 
     return trend, accuracy * 100, f1 * 100
-
 
 # Hàm trả về kết quả xu hướng cuối cùng
 def get_final_trend_ETH():
@@ -186,12 +177,12 @@ def get_final_trend_ETH():
     # Kiểm tra các điều kiện để quyết định kết quả
     if (trend_h1 == 1 and trend_h4 == 1 and combined_acc >= 0.88) or \
        (trend_h1 == 1 and accuracy_h1 > 71 and f1_h1 > 71) or \
-       (trend_h4 == 1 and accuracy_h4 > 69 and f1_h4 > 70):
+       (trend_h4 == 1 and accuracy_h4 > 69 and f1_h4 > 69):
         return "Xu hướng tăng"
         
     elif (trend_h1 == 0 and trend_h4 == 0 and combined_acc >= 0.88) or \
          (trend_h1 == 0 and accuracy_h1 > 71 and f1_h1 > 71) or \
-         (trend_h4 == 0 and accuracy_h4 > 69 and f1_h4 > 70):
+         (trend_h4 == 0 and accuracy_h4 > 69 and f1_h4 > 69):
         return "Xu hướng giảm"
         
     # Nếu một trong các khung thời gian có xu hướng không rõ ràng

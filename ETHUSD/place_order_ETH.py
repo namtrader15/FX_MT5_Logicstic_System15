@@ -56,7 +56,7 @@ def calculate_volume_based_on_risk(symbol, risk_amount, market_price, stop_loss_
     return volume
 
 # Hàm thực hiện lệnh Market trên MT5 với tính toán volume, Stop Loss và Take Profit
-def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_reward_ratio=1.7):
+def place_order_mt5(client, order_type, symbol="ETHUSD", risk_amount=60, risk_reward_ratio=1.6):
     global last_order_status
     
     # Lấy giá mark hiện tại từ MT5 để đặt lệnh
