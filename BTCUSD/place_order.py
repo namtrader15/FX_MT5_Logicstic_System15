@@ -3,9 +3,9 @@ from binance.client import Client
 from atr_check import atr_stop_loss_finder  # Hàm tính ATR từ Binance
 import random
 # Thông tin tài khoản MT5
-MT5_ACCOUNT = 24528903
-MT5_PASSWORD = 'kvaaLCOL~_22'
-MT5_SERVER = 'FivePercentOnline-Real'
+MT5_ACCOUNT = 7510016
+MT5_PASSWORD = '7lTa+zUw'
+MT5_SERVER = 'VantageInternational-Demo'
 
 # Thông tin API Binance
 BINANCE_API_KEY = "your_binance_api_key"
@@ -60,7 +60,7 @@ def calculate_volume_based_on_risk(symbol, risk_amount, market_price, stop_loss_
     return volume
 
 # Hàm thực hiện lệnh Market trên MT5 với tính toán volume, Stop Loss và Take Profit
-def place_order_mt5(client, order_type, symbol="BTCUSD", risk_amount=50000, risk_reward_ratio=1.7):
+def place_order_mt5(client, order_type, symbol="BTCUSD", risk_amount=90, risk_reward_ratio=1.6):
     global last_order_status
     
     # Lấy giá mark hiện tại từ MT5 để đặt lệnh
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     # Kết nối MT5 và thực hiện lệnh Market mẫu
     if connect_mt5():
         print("Thực hiện lệnh Market với tính toán volume từ mức rủi ro và ATR stop loss.")
-        place_order_mt5(client, "buy", "BTCUSD", risk_amount=50000)  # Truyền risk_amount trực tiếp
+        place_order_mt5(client, "buy", "BTCUSD", risk_amount=90)  # Truyền risk_amount trực tiếp
         mt5.shutdown()
     else:
         print("Không thể kết nối đến MT5.")
