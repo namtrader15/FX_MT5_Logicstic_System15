@@ -2,8 +2,8 @@ from flask import Flask, render_template, jsonify, request
 import time
 import threading
 import MetaTrader5 as mt5
-from TestEntry import get_final_trend_ETH
-#from Entry_Super_ETH import get_final_trend_ETH # Hàm lấy xu hướng
+#from TestEntry import get_final_trend_ETH
+from Entry_Super_ETH import get_final_trend_ETH # Hàm lấy xu hướng
 from TPO_POC_ETH import calculate_poc_value_ETH  # Hàm tính POC
 from place_order_ETH import place_order_mt5  # Hàm thực hiện lệnh giao dịch
 
@@ -11,10 +11,10 @@ from place_order_ETH import place_order_mt5  # Hàm thực hiện lệnh giao d�
 app = Flask(__name__)
 
 # Thông tin tài khoản MT5
-MT5_ACCOUNT = 7510016
-MT5_PASSWORD = "7lTa+zUw"
-MT5_SERVER = "VantageInternational-Demo"
-RISK_AMOUNT = 70  # USD
+MT5_ACCOUNT = 24528903
+MT5_PASSWORD = 'kvaaLCOL~_22'
+MT5_SERVER = 'FivePercentOnline-Real'
+RISK_AMOUNT = 100  # USD
 
 # Biến lưu trữ trạng thái giao dịch và điều khiển bot
 trade_status = {
