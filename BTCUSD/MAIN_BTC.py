@@ -17,7 +17,7 @@ MT5_PASSWORD = 'kvaaLCOL~_22'
 MT5_SERVER = 'FivePercentOnline-Real'
 BINANCE_API_KEY = "your_binance_api_key"
 BINANCE_SECRET_KEY = "your_binance_secret_key"
-RISK_AMOUNT = 70  # USD
+RISK_AMOUNT = 150  # USD
 
 # Biến lưu trữ trạng thái giao dịch và điều khiển bot
 trade_status = {
